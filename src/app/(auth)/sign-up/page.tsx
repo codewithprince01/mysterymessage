@@ -28,8 +28,7 @@ export default function SignUpForm() {
   const [isCheckingMessage, setIsCheckingMessage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const debounced = useDebounceCallback(setUsername, 300)
-
+  const debounced = useDebounceCallback(setUsername, 300);
 
   const router = useRouter();
   const { toast } = useToast();
@@ -73,7 +72,7 @@ export default function SignUpForm() {
       const response = await axios.post<ApiResponse>("/api/sign-up", data);
 
       toast({
-        title: "Success",
+        title: "Account Created",
         description: response.data.message,
       });
 
@@ -82,7 +81,7 @@ export default function SignUpForm() {
       const axiosError = error as AxiosError<ApiResponse>;
       const errorMessage =
         axiosError.response?.data.message ??
-        "There was a problem with your sign-up. Please try again.";
+        "Oops! Something went wrong. Please try again.";
 
       toast({
         title: "Sign Up Failed",
@@ -95,16 +94,19 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-800">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-indigo-800 via-purple-800 to-blue-700">
+      <div className="w-full max-w-sm p-6 space-y-5 bg-gray-900 rounded-xl shadow-lg text-white">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Join True Feedback
+          <h1 className="text-4xl font-bold mb-4 text-yellow-300">
+            Start Your Adventure
           </h1>
-          <p className="mb-4">Sign up to start your anonymous adventure</p>
+          <p className="text-lg font-light mb-4 text-gray-300">
+            Join the fun and send mysterious messages to the world!
+          </p>
         </div>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
               name="username"
               control={form.control}
@@ -119,21 +121,24 @@ export default function SignUpForm() {
                     }}
                   />
                   <div className="flex items-center gap-2 mt-1">
-                    {isCheckingMessage && <Loader2 className="animate-spin h-4 w-4 text-gray-500" />}   
-                      <p
-                        className={`text-sm ${
-                          usernameMessage === "Username is unique"
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }`}
-                      >
-                      test  {usernameMessage}
-                      </p>
+                    {isCheckingMessage && (
+                      <Loader2 className="animate-spin h-5 w-5 text-gray-500" />
+                    )}
+                    <p
+                      className={`text-sm ${
+                        usernameMessage === "Username is unique"
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {usernameMessage}
+                    </p>
                   </div>
-                  <FormMessage /> 
+                  <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="email"
@@ -145,6 +150,7 @@ export default function SignUpForm() {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="password"
@@ -156,23 +162,34 @@ export default function SignUpForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : (
-                "Sign Up"
-              )}
-            </Button>
+
+<Button
+  type="submit"
+  className={`w-full py-3 px-6 rounded-lg text-white transition-all duration-300 ${
+    isSubmitting
+      ? "bg-gray-600 cursor-not-allowed"
+      : "bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:scale-105 focus:ring-4 focus:ring-indigo-200"
+  }`}
+  disabled={isSubmitting}
+>
+  {isSubmitting ? (
+    <>
+      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+      Please wait...
+    </>
+  ) : (
+    "Sign Up"
+  )}
+</Button>
+
           </form>
         </Form>
-        <div className="text-center mt-4">
+
+        <div className="text-center mt-4 text-gray-300">
           <p>
             Already a member?{" "}
-            <Link href="/sign-in" className="text-blue-600 hover:text-blue-800">
-              Sign in
+            <Link href="/sign-in" className="text-blue-400 hover:text-blue-600">
+              Log In
             </Link>
           </p>
         </div>

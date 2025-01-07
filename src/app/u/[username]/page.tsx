@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { messageSchema } from "@/schemas/messageSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +25,6 @@ import { Loader2 } from "lucide-react";
 
 export default function SendMessage() {
   const [isLoading, setIsLoading] = useState(false);
-
   const { toast } = useToast();
   const params = useParams<{ username: string }>();
   const username = params.username;
@@ -67,43 +66,64 @@ export default function SendMessage() {
   };
 
   return (
-    <div>
-      <h1>Public Profile Link</h1>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            name="content"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Send Anonymous Message to @{username}</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Write your anonymous message here"
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-center">
-            {
-              isLoading?(
-                <Button disabled>
-                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                     Please wait
+    <div className="bg-gradient-to-br from-indigo-900 via-purple-800 to-black min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="bg-gradient-to-t from-black via-indigo-900 to-purple-800 rounded-lg shadow-lg max-w-lg w-full text-white p-6">
+        <h1 className="text-4xl font-bold text-center mb-6">
+          ✨ Send a Mystery Message ✨
+        </h1>
+        <p className="text-center text-lg opacity-80 mb-8">
+          Unlock the mystery of your anonymous message and let someone
+          experience a moment of surprise. Don’t worry, we’ve got your secrets
+          safe.{" "}
+          <span className="text-xl text-yellow-400 font-semibold">@{username}</span> won’t even know who it’s from!
+        </p>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              name="content"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xl text-gray-300">Your Message</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Write your mysterious message here..."
+                      className="text-black bg-white placeholder-gray-400 p-6 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-600 transition-all w-full" // Increased padding and full width
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-center">
+              {isLoading ? (
+                <Button
+                  disabled
+                  className="bg-pink-700 text-white py-3 px-6 rounded-lg text-lg flex items-center"
+                >
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
                 </Button>
-              ):(
-                <Button type="submit" disabled={isLoading || !messageContent}>
-                Send It
-              </Button>
-              )
-            }
-          </div>
-        </form>
-      </Form>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isLoading || !messageContent}
+                  className="bg-pink-700 text-white py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all duration-200"
+                >
+                  Send It 💌
+                </Button>
+              )}
+            </div>
+          </form>
+        </Form>
+
+        <div className="mt-8 text-center text-lg opacity-60">
+          <p className="text-gray-200">Don’t let the world know who you are.</p>
+          <p className="text-pink-400 mt-2 font-semibold">The secret will stay between you and the universe.</p>
+        </div>
+      </div>
     </div>
   );
 }
