@@ -8,8 +8,8 @@ import AuthProvider from './context/AuthProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'True Feedback',
-  description: 'Real feedback from real people.',
+  title: 'Mystery Message',
+  description: 'Uncover the Secrets 🌌.',
 };
 
 interface RootLayoutProps {

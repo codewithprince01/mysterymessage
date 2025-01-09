@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { promise } from "zod";
 
 type ConnectionObject ={
     isConnected?:number;
