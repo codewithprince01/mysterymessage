@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
@@ -20,6 +20,7 @@ import { Button } from './ui/button';
 import { ApiResponse } from '@/types/ApiResponse';
 import { Message } from '@/model/user.models';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 type MessageCardProps = {
   message: Message;
@@ -28,10 +29,10 @@ type MessageCardProps = {
 
 export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteConfirm = async () => {
     if (!message._id) {
-      // Handle error if message._id is undefined
       toast({
         title: 'Error',
         description: 'Message ID is missing',
@@ -40,23 +41,26 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
       return;
     }
 
+    setIsDeleting(true);
     try {
       const response = await axios.delete<ApiResponse>(
-        `/api/delete-message/${message._id.toString()}`
+        `/api/delete-message/${message._id}`
       );
       toast({
         title: response.data.message,
+        description: 'The message has been successfully deleted.',
       });
-      onMessageDelete(message._id.toString()); // Ensure message._id is string
-
+      onMessageDelete(message._id.toString());
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
         title: 'Error',
         description:
-          axiosError.response?.data.message ?? 'Failed to delete message',
+          axiosError.response?.data.message ?? 'Failed to delete the message',
         variant: 'destructive',
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -67,8 +71,16 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
           <CardTitle>{message.content}</CardTitle>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive">
-                <X className="w-5 h-5" />
+              <Button
+                variant="destructive"
+                disabled={isDeleting}
+                className={isDeleting ? 'cursor-not-allowed' : ''}
+              >
+                {isDeleting ? (
+                  <span className="animate-spin h-5 w-5 border-2 border-t-transparent rounded-full" />
+                ) : (
+                  <X className="w-5 h-5" />
+                )}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
