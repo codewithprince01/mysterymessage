@@ -1,65 +1,52 @@
 import { getServerSession } from 'next-auth/next';
 import dbConnect from '@/lib/dbConnect';
+import { authOptions } from '../../auth/[...nextauth]/options';
 import UserModel from '@/model/user.models';
+import { User as NextAuthUser } from 'next-auth';
 
-import { NextRequest, NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import { authOptions } from '@/app/api/auth/[...nextauth]/options';
+export async function DELETE(
+  request: Request,
+  context: { params: { messageid: string } }
+) {
+  const { messageid } = context.params; // Access params directly without `await`
 
-// Define the context type for TypeScript
-interface Context {
-  params: { messageid: string };
-}
-
-// DELETE Handler for removing a message by its ID
-export async function DELETE(request: NextRequest, { params }: Context) {
-  // Ensure params are awaited before using
-  const { messageid } = await params; // Await the params object to access `messageid`
-
-  // Validate `messageid` as a MongoDB ObjectId
-  if (!mongoose.Types.ObjectId.isValid(messageid)) {
-    return NextResponse.json(
-      { success: false, message: 'Invalid message ID' },
-      { status: 400 }
-    );
-  }
-
-  // Connect to the database
   await dbConnect();
-
-  // Get the session to verify the user
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json(
-      { success: false, message: 'Not authenticated' },
-      { status: 401 }
+
+  const _user = session?.user as NextAuthUser | undefined;
+
+  if (!_user) {
+    return new Response(
+      JSON.stringify({ success: false, message: 'Not authenticated' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
   try {
-    // Remove the message from the user's record
-    const result = await UserModel.updateOne(
-      { _id: session.user._id }, // Match the user
-      { $pull: { messages: { _id: messageid } } } // Remove the specific message
+    const updateResult = await UserModel.updateOne(
+      { _id: _user._id },
+      { $pull: { messages: { _id: messageid } } }
     );
 
-    // Check if the message was found and deleted
-    if (result.modifiedCount === 0) {
-      return NextResponse.json(
-        { success: false, message: 'Message not found or already deleted' },
-        { status: 404 }
+    if (updateResult.modifiedCount === 0) {
+      return new Response(
+        JSON.stringify({
+          message: 'Message not found or already deleted',
+          success: false,
+        }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    return NextResponse.json(
-      { success: true, message: 'Message deleted successfully' },
-      { status: 200 }
+    return new Response(
+      JSON.stringify({ message: 'Message deleted', success: true }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error deleting message:', error);
-    return NextResponse.json(
-      { success: false, message: 'Error deleting message' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ message: 'Error deleting message', success: false }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }

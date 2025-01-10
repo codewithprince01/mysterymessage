@@ -44,7 +44,7 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
       const messageId = message._id.toString(); // Ensure it's a string
 
       const response = await axios.delete<ApiResponse>(`/api/delete-message/${messageId}`);
-      console.log(`Message deleted: ${messageId}`);  // For debugging
+      console.log(`Message deleted: ${messageId.toString()}`);  // For debugging
 
       toast({
         title: response.data.message,
