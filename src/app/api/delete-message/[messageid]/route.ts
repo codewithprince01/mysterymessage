@@ -4,37 +4,28 @@ import { authOptions } from '../../auth/[...nextauth]/options';
 import UserModel from '@/model/user.models';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Update the type for context params
 export async function DELETE(request: NextRequest, { params }: { params: { messageid: string } }) {
-  const { messageid } = params; // Extract the `messageid` correctly
+  const { messageid } = params;
 
-  // Validate the message ID
   if (!messageid) {
-    return NextResponse.json(
-      { success: false, message: 'Message ID is missing' },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, message: 'Message ID is missing' }, { status: 400 });
   }
 
-  // Establish a connection to the database
-  await dbConnect();
+  await dbConnect(); // Connect to the database
 
-  // Authenticate the user
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions); // Fetch user session
   if (!session?.user) {
-    return NextResponse.json(
-      { success: false, message: 'Not authenticated' },
-      { status: 401 }
-    );
+    return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
   }
 
   try {
-    // Perform the deletion
-    const updateResult = await UserModel.updateOne(
-      { _id: session.user._id },
-      { $pull: { messages: { _id: messageid } } }
+    const result = await UserModel.updateOne(
+      { _id: session.user._id }, // Match the user's `_id`
+      { $pull: { messages: { _id: messageid } } } // Remove the message by `_id`
     );
 
-    if (updateResult.modifiedCount === 0) {
+    if (result.modifiedCount === 0) {
       return NextResponse.json(
         { success: false, message: 'Message not found or already deleted' },
         { status: 404 }
