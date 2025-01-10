@@ -40,20 +40,24 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
 
     setIsDeleting(true);
     try {
-      const response = await axios.delete<ApiResponse>(
-        `/api/delete-message/${message._id}`
-      );
+      // Check if message._id is valid before sending it
+      const messageId = message._id.toString(); // Ensure it's a string
+
+      const response = await axios.delete<ApiResponse>(`/api/delete-message/${messageId}`);
+      console.log(`Message deleted: ${messageId}`);  // For debugging
+
       toast({
         title: response.data.message,
         description: 'The message has been successfully deleted.',
       });
-      onMessageDelete(message._id.toString());
+
+      // Notify parent component to remove the deleted message from the UI
+      onMessageDelete(messageId);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
         title: 'Error',
-        description:
-          axiosError.response?.data.message ?? 'Failed to delete the message',
+        description: axiosError.response?.data.message ?? 'Failed to delete the message',
         variant: 'destructive',
       });
     } finally {
@@ -71,8 +75,7 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
               <Button
                 variant="destructive"
                 disabled={isDeleting}
-                className={isDeleting ? 'cursor-not-allowed' : ''}
-              >
+                className={isDeleting ? 'cursor-not-allowed' : ''}>
                 {isDeleting ? (
                   <span className="animate-spin h-5 w-5 border-2 border-t-transparent rounded-full" />
                 ) : (
@@ -84,17 +87,12 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  this message.
+                  This action cannot be undone. This will permanently delete this message.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteConfirm}>
-                  Continue
-                </AlertDialogAction>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteConfirm}>Continue</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

@@ -1,9 +1,10 @@
 import { getServerSession } from 'next-auth/next';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/user.models';
-import { authOptions } from '../../auth/[...nextauth]/options';
+
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 
 // Define the context type for TypeScript
 interface Context {
@@ -11,8 +12,9 @@ interface Context {
 }
 
 // DELETE Handler for removing a message by its ID
-export async function DELETE(_: NextRequest, { params }: Context) {
-  const { messageid } = params;
+export async function DELETE(request: NextRequest, { params }: Context) {
+  // Ensure params are awaited before using
+  const { messageid } = await params; // Await the params object to access `messageid`
 
   // Validate `messageid` as a MongoDB ObjectId
   if (!mongoose.Types.ObjectId.isValid(messageid)) {
