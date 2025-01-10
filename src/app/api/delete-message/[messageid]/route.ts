@@ -4,12 +4,8 @@ import { authOptions } from '../../auth/[...nextauth]/options';
 import UserModel from '@/model/user.models';
 import { NextRequest, NextResponse } from 'next/server';
 
-interface Context {
-  params: { messageid: string };
-}
-
-export async function DELETE(request: NextRequest, context: Context) {
-  const { messageid } = context.params; // Correctly extract the `messageid`
+export async function DELETE(request: NextRequest, { params }: { params: { messageid: string } }) {
+  const { messageid } = params; // Extract the `messageid` correctly
 
   // Validate the message ID
   if (!messageid) {
