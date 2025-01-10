@@ -5,9 +5,8 @@ import { authOptions } from '../../auth/[...nextauth]/options';
 import UserModel from '@/model/user.models';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function DELETE(request: NextRequest, context: { params: { messageid: string } }) {
-  // Await params to extract messageid correctly
-  const { messageid } = await context.params; // Correctly awaiting params
+export async function DELETE(request: NextRequest, { params }: { params: { messageid: string } }) {
+  const { messageid } = params; // No need for `await`, just destructure
 
   // Ensure the message ID is provided
   if (!messageid) {
