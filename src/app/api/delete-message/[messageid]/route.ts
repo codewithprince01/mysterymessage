@@ -1,30 +1,47 @@
 import { getServerSession } from 'next-auth/next';
 import dbConnect from '@/lib/dbConnect';
-import { authOptions } from '../../auth/[...nextauth]/options';
 import UserModel from '@/model/user.models';
+import { authOptions } from '../../auth/[...nextauth]/options';
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 
-// Update the type for context params
-export async function DELETE(request: NextRequest, { params }: { params: { messageid: string } }) {
+// Define the context type for TypeScript
+interface Context {
+  params: { messageid: string };
+}
+
+// DELETE Handler for removing a message by its ID
+export async function DELETE(_: NextRequest, { params }: Context) {
   const { messageid } = params;
 
-  if (!messageid) {
-    return NextResponse.json({ success: false, message: 'Message ID is missing' }, { status: 400 });
+  // Validate `messageid` as a MongoDB ObjectId
+  if (!mongoose.Types.ObjectId.isValid(messageid)) {
+    return NextResponse.json(
+      { success: false, message: 'Invalid message ID' },
+      { status: 400 }
+    );
   }
 
-  await dbConnect(); // Connect to the database
+  // Connect to the database
+  await dbConnect();
 
-  const session = await getServerSession(authOptions); // Fetch user session
+  // Get the session to verify the user
+  const session = await getServerSession(authOptions);
   if (!session?.user) {
-    return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, message: 'Not authenticated' },
+      { status: 401 }
+    );
   }
 
   try {
+    // Remove the message from the user's record
     const result = await UserModel.updateOne(
-      { _id: session.user._id }, // Match the user's `_id`
-      { $pull: { messages: { _id: messageid } } } // Remove the message by `_id`
+      { _id: session.user._id }, // Match the user
+      { $pull: { messages: { _id: messageid } } } // Remove the specific message
     );
 
+    // Check if the message was found and deleted
     if (result.modifiedCount === 0) {
       return NextResponse.json(
         { success: false, message: 'Message not found or already deleted' },
